@@ -157,6 +157,13 @@ class BootstrapService {
       //    so proot-compat.js spawn mock can't intercept it)
       // dpkg extracts via tar inside proot — permissions are correct.
       // Post-install scripts (update-ca-certificates) run automatically.
+      // Pre-configure tzdata to avoid interactive continent/timezone prompt
+      // (tzdata is a dependency of python3 and ignores DEBIAN_FRONTEND on
+      // first install if no timezone is pre-set).
+      await NativeBridge.runInProot(
+        'ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime && '
+        'echo "Etc/UTC" > /etc/timezone',
+      );
       await NativeBridge.runInProot(
         'apt-get install -y --no-install-recommends '
         'ca-certificates git python3 make g++',
